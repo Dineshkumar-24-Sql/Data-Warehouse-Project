@@ -1,0 +1,19 @@
+-- Created the Data base with the Schemas
+If exists (select 1 from sys.databases
+where name = 'DataWareHouse'
+)
+Print 'Available'
+Else
+Print 'Not Avaiable'
+
+
+
+
+USE DataWareHouse
+CREATE SCHEMA Bronze
+GO
+CREATE SCHEMA Silver
+GO
+CREATE SCHEMA Gold
+GO
+
