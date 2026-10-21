@@ -1,0 +1,132 @@
+/*list it in no
+Tables are truncated before loading new data.
+
+Bulk insert is performed for CRM and ERP data.
+
+Total execution time is calculated.
+
+Execute the stored procedure using: exec bronze.load_bronze
+*/
+
+CREATE OR ALTER PROCEDURE Bronze.load_bronze As
+Begin
+	Begin TRY
+	DECLARE @Starttime DATETIME, @ENDTIME DATETIME, @Bronzestart DATETIME, @Bronzeend DATETIME;
+	PRINT 'lOADING BRONZE LAYER';
+	PRINT '==============================';
+	PRINT 'CRM DETAILS';
+
+	SET @Bronzestart = GETDATE();
+
+
+	SET @Starttime = Getdate();
+
+	TRUNCATE TABLE Bronze.Crm_CustInfo
+
+	BULK INSERT Bronze.Crm_CustInfo
+	FROM 'C:\Users\dineshkumar.preman\OneDrive - UiPath\Desktop\DWH\crm\cust_info_sql.csv'
+	WITH (
+		FIRSTROW = 2,
+		FIELDTERMINATOR = ','
+		);
+
+	SET @ENDTIME = GETDATE();
+
+	PRINT ' TOTAL TIME TAKEN TO LOAD' +  '  ' +CAST(DATEDIFF(SECOND,@Starttime,@ENDTIME) AS NVARCHAR)
+
+
+	SET @Starttime = Getdate();
+
+	TRUNCATE TABLE Bronze.Crm_ProdInfo
+
+	BULK INSERT Bronze.Crm_ProdInfo
+	FROM 'C:\Users\dineshkumar.preman\OneDrive - UiPath\Desktop\DWH\crm\prd_info.csv'
+	WITH (
+		FIRSTROW = 2,
+		FIELDTERMINATOR = ','
+	
+		);
+
+	SET @ENDTIME = GETDATE();
+
+	PRINT ' TOTAL TIME TAKEN TO LOAD' +  '  ' +CAST(DATEDIFF(SECOND,@Starttime,@ENDTIME) AS NVARCHAR)
+
+	SET @Starttime = Getdate();
+
+	TRUNCATE TABLE Bronze.Crm_SalesDetails
+
+	BULK INSERT Bronze.Crm_SalesDetails
+	FROM 'C:\Users\dineshkumar.preman\OneDrive - UiPath\Desktop\DWH\crm\sales_details.csv'
+	WITH (
+		FIRSTROW = 2,
+		FIELDTERMINATOR = ','
+	
+		);
+
+	PRINT 'ERP DETAILS';
+
+	SET @ENDTIME = GETDATE();
+
+	PRINT ' TOTAL TIME TAKEN TO LOAD' +  '  ' +CAST(DATEDIFF(SECOND,@Starttime,@ENDTIME) AS NVARCHAR)
+
+	SET @Starttime = Getdate();
+
+	TRUNCATE TABLE Bronze.Erp_PX_CAT_G1V2
+
+	BULK INSERT Bronze.Erp_PX_CAT_G1V2
+	FROM 'C:\Users\dineshkumar.preman\OneDrive - UiPath\Desktop\DWH\erp\PX_CAT_G1V2.csv'
+	WITH (
+		FIRSTROW = 2,
+		FIELDTERMINATOR = ','
+	
+		);
+
+	SET @ENDTIME = GETDATE();
+
+	PRINT ' TOTAL TIME TAKEN TO LOAD' +  '  ' +CAST(DATEDIFF(SECOND,@Starttime,@ENDTIME) AS NVARCHAR)
+
+	SET @Starttime = Getdate();
+
+	TRUNCATE TABLE Bronze.Erp_CUST_AZ12
+
+
+	BULK INSERT Bronze.Erp_CUST_AZ12
+	FROM 'C:\Users\dineshkumar.preman\OneDrive - UiPath\Desktop\DWH\erp\CUST_AZ12.csv'
+	WITH (
+		FIRSTROW = 2,
+		FIELDTERMINATOR = ','
+	
+		);
+
+	SET @ENDTIME = GETDATE();
+
+	PRINT ' TOTAL TIME TAKEN TO LOAD' +  '  ' +CAST(DATEDIFF(SECOND,@Starttime,@ENDTIME) AS NVARCHAR)
+
+	SET @Starttime = Getdate();
+
+	TRUNCATE TABLE Bronze.Erp_LOC_A101
+
+	BULK INSERT Bronze.Erp_LOC_A101
+	FROM 'C:\Users\dineshkumar.preman\OneDrive - UiPath\Desktop\DWH\erp\LOC_A101.csv'
+	WITH (
+		FIRSTROW = 2,
+		FIELDTERMINATOR = ','
+	
+		);
+
+		SET @ENDTIME = GETDATE();
+
+		PRINT ' TOTAL TIME TAKEN TO LOAD' +  '  ' +CAST(DATEDIFF(SECOND,@Starttime,@ENDTIME) AS NVARCHAR)
+
+		SET @Bronzeend = GETDATE();
+
+		PRINT ' TOTAL TIME TAKEN TO LOAD to Bronze' +  '  =  ' +CAST(DATEDIFF(SECOND,@Bronzestart,@Bronzeend) AS NVARCHAR)
+
+	END TRY
+	BEGIN CATCH
+		PRINT 'An Error Occured'
+		PRINT 'ERROR MESSAGE' + ERROR_MESSAGE()
+		PRINT 'ERROR CODE' + CAST(ERROR_NUMBER() AS NVARCHAR)
+		PRINT 'ERROR STATE' + ERROR_STATE()
+	END CATCH
+END
