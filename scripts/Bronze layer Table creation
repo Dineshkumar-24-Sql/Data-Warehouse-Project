@@ -1,0 +1,72 @@
+IF OBJECT_ID('Silver.Crm_SalesDetails','U') IS NOT NULL
+DROP TABLE Silver.Crm_SalesDetails
+
+CREATE TABLE  Silver.Crm_SalesDetails (
+	 sls_ord_num   nvarchar (50) NULL,
+	 sls_prd_key   nvarchar (50) NULL,
+	 sls_cust_id   nvarchar (50) NULL,
+	 psls_order_dt   nvarchar (20) NULL,
+	 sls_ship_dt   nvarchar (20) NULL,
+	 sls_due_dt   nvarchar (20) NULL,
+	 sls_sales   int  NULL,
+	 sls_quantity   int  NULL,
+	 sls_price   int  NULL,
+	 dwh_creation_date datetime2 default getdate()
+)
+
+IF OBJECT_ID('Silver.Crm_CustInfo','U') IS NOT NULL
+DROP TABLE Silver.Crm_CustInfo 
+
+CREATE TABLE  Silver.Crm_CustInfo 
+(
+	 cst_id   int  NULL,
+	 cst_key   nvarchar (50) NULL,
+	 cst_firstname   nvarchar (20) NULL,
+	 cst_lastname   nvarchar (20) NULL,
+	 cst_marital_status   nvarchar (20) NULL,
+	 cst_gndr   nvarchar (20) NULL,
+	 cst_create_date   date  NULL,
+	  dwh_creation_date datetime2 default getdate()
+)
+IF OBJECT_ID('Silver.Crm_ProdInfo','U') IS NOT NULL
+DROP TABLE Silver.Crm_ProdInfo
+
+CREATE TABLE  Silver.Crm_ProdInfo (
+	 prd_id   int  NULL,
+	 prd_key   nvarchar (50) NULL,
+	 prd_nm   nvarchar (50) NULL,
+	 prd_cost   int  NULL,
+	 prd_line   nvarchar (20) NULL,
+	 prd_start_dt   date  NULL,
+	 prd_end_dt   date  NULL,
+	  dwh_creation_date datetime2 default getdate()
+)
+IF OBJECT_ID('Silver.Erp_CUST_AZ12','U') IS NOT NULL
+DROP TABLE Silver.Erp_CUST_AZ12
+
+CREATE TABLE  Silver.Erp_CUST_AZ12 (
+	 CID   nvarchar (30) NULL,
+	 BDATE   date  NULL,
+	 GEN   nvarchar (20) NULL,
+	  dwh_creation_date datetime2 default getdate()
+)
+
+IF OBJECT_ID('Silver.Erp_LOC_A101','U') IS NOT NULL
+DROP TABLE Silver.Erp_LOC_A101
+
+CREATE TABLE  Silver.Erp_LOC_A101 (
+	 CID   nvarchar (30) NULL,
+	 CNTRY   nvarchar (30) NULL,
+	  dwh_creation_date datetime2 default getdate()
+)
+IF OBJECT_ID('Silver. Erp_PX_CAT_G1V2','U') IS NOT NULL
+DROP TABLE Bronze . Erp_PX_CAT_G1V2
+
+
+CREATE TABLE  Silver. Erp_PX_CAT_G1V2 (
+	 ID   nvarchar (30) NULL,
+	 CAT   nvarchar (30) NULL,
+	 SUBCAT   nvarchar (30) NULL,
+	 MAINTENANCE   nvarchar (20) NULL,
+	  dwh_creation_date datetime2 default getdate()
+)
