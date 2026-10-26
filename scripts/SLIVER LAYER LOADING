@@ -1,3 +1,29 @@
+Truncate table Silver.Crm_CustInfo;
+
+
+WITH CTE_FLAGS AS 
+(
+SELECT *, ROW_NUMBER() OVER (PARTITION BY CST_ID ORDER BY CST_CREATE_DATE DESC) AS FLAGS
+FROM BRONZE.Crm_CustInfo
+)
+INSERT INTO Silver.Crm_CustInfo (
+cst_id, cst_key, cst_firstname, cst_lastname, cst_marital_status, cst_gndr, cst_create_date)
+
+SELECT cst_id,cst_key,
+trim(cst_firstname) as cst_firstname,trim(cst_lastname) as cst_lastname,
+case 
+    when UPPER(TRIM(cst_marital_status)) = 'M' then 'Married'
+    when UPPER(TRIM(cst_marital_status)) = 'S' then 'Single'
+else 'N/A'
+END as cst_marital_status,
+case when UPPER(TRIM(cst_gndr)) = 'M' then 'Male'
+    when UPPER(TRIM(cst_gndr)) = 'F' then 'Female'
+else 'N/A'
+END as cst_gndr, cst_create_date
+from CTE_FLAGS WHERE FLAGS=1
+
+
+
 TRUNCATE TABLE silver.crm_prd_info
 insert into silver.crm_prd_info
 ( prd_id,
