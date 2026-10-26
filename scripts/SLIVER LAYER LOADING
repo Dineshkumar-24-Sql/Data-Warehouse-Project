@@ -1,0 +1,103 @@
+TRUNCATE TABLE silver.crm_prd_info
+insert into silver.crm_prd_info
+( prd_id,
+cat_id,
+prd_key,
+prd_nm,
+prd_cost,
+prd_line,
+prd_start_dt,
+prd_end_dt)
+
+SELECT prd_id,REPLACE (SUBSTRING(PRD_KEY,1,5),'-','_') cat_id,
+substring (PRD_KEY,7,LEN(PRD_KEY)) cat_key,prd_nm, ISNULL(prd_cost,0) as prd_cost,
+case upper(trim(prd_line))
+when 'R' THEN 'Road'
+when 'S' THEN 'Other Sales'
+when 'M' THEN 'Moutain'
+when 'T' THEN 'Touring'
+END as Prd_linedetails,
+prd_start_dt,
+lead(prd_start_dt) over (partition by prd_key order by prd_start_dt) as prd_end_date
+FROM Bronze.Crm_ProdInfo
+
+---------------------------------------------
+
+TRUNCATE TABLE silver.crm_salesdetails
+INSERT INTO silver.crm_salesdetails (
+    sls_ord_num,
+    sls_prd_key,
+    sls_cust_id,
+    Psls_order_dt,
+    sls_ship_dt,
+    sls_due_dt,
+    sls_sales,
+    sls_quantity,
+    sls_price
+)
+
+SELECT TRIM(SLS_ORD_NUM),trim(sls_prd_key),
+trim(sls_cust_id),
+CASE WHEN len(psls_order_dt) = 8 then cast(cast(psls_order_dt as varchar(8)) AS date)
+else NUll
+END AS Orderdt,
+cast(cast(sls_due_dt as varchar(20)) as date),
+cast(cast(sls_ship_dt as varchar(20)) As date),
+sls_sales = sls_quantity *  ISNULL(ABS(NULLIF(sls_price,0)),SLS_SALES/SLS_QUANTITY), sls_quantity, ISNULL(ABS(NULLIF(sls_price,0)),SLS_SALES/SLS_QUANTITY)
+FROM Bronze.Crm_SalesDetails
+
+---------------
+
+TRUNCATE TABLE silver.erp_cust_az12
+INSERT INTO silver.erp_cust_az12 (
+    cid,
+    bdate,
+    gen
+)
+
+SELECT 
+	CASE WHEN CID LIKE 'NAS%' THEN SUBSTRING(CID,4,LEN(CID))
+	ELSE CID
+	END cst_key, 
+	CASE WHEN BDATE > GETDATE() THEN NULL 
+	ELSE BDATE END BDATE, 
+	CASE WHEN UPPER(TRIM(GEN)) IN ('M','MALE') then 'Male'
+		WHEN UPPER(TRIM(GEN)) IN ('F','FEMALE') then 'Female'
+	else 'N/A' end gen
+
+FROM BRONZE.ERP_CUST_AZ12
+
+
+
+--------------------------
+
+
+TRUNCATE TABLE silver.erp_loc_a101
+INSERT INTO silver.erp_loc_a101 (
+    cid,
+    cntry
+)
+
+SELECT REPLACE (CID, '-','') AS cid,
+CASE 
+	WHEN UPPER(TRIM(CNTRY)) IN ('US','USA') THEN 'United States'
+	WHEN UPPER(TRIM(CNTRY)) = 'DE' THEN 'Germany'
+	WHEN UPPER(TRIM(CNTRY)) = '' THEN 'N/A'
+	WHEN UPPER(TRIM(CNTRY)) IS NULL THEN 'N/A'
+
+	else cntry END AS COUNTRY
+FROM BRONZE.ERP_LOC_A101
+
+------------------------------------
+
+TRUNCATE TABLE silver.erp_px_cat_g1v2
+
+INSERT INTO silver.erp_px_cat_g1v2 (
+    id,
+    cat,
+    subcat,
+    maintenance
+)
+
+SELECT * FROM BRONZE.Erp_PX_CAT_G1V2
+
