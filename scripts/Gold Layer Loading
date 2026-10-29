@@ -1,0 +1,60 @@
+CREATE VIEW Gold.dim_customer_details As
+SELECT 
+    ROW_NUMBER() OVER (ORDER BY ci.cst_id) AS Customer_Key,
+    ci.cst_id AS Customer_ID,
+    ci.cst_key AS Customer_Number,
+    ci.cst_firstname AS First_Name,
+    ci.cst_lastname AS Last_Name,
+    ci.cst_marital_status AS Marital_Status,
+    CASE
+        WHEN ci.cst_gndr != 'N/A' THEN ci.cst_gndr
+        ELSE ISNULL(ep.GEN, 'N/A')
+    END AS Gender,
+    ep.BDATE AS Birth_Date,
+    EA.CNTRY AS Country,
+    ci.cst_create_date AS Customer_Creation_Date
+FROM SILVER.Crm_CustInfo ci
+left join silver.Erp_CUST_AZ12 ep on
+ci.cst_key = EP.CID 
+LEFT JOIN SILVER.Erp_LOC_A101 EA ON 
+ci.cst_key = EA.CID 
+WHERE CI.CST_ID IS NOT NULL
+
+----------------------------------------------------
+
+CREATE VIEW Gold.dim_product_details As
+SELECT
+	row_number() OVER (ORDER BY prd_start_dt,prd_id) Product_key,
+	PD.prd_id AS Product_ID,
+	PD.prd_key AS Product_Number,
+	PD.prd_nm AS Product_Name,
+	PD.cat_id AS Category_ID,
+	pdd.CAT as Category,
+	pdd.SUBCAT as Sub_category,
+	PD.prd_cost AS Product_Cost,
+	PD.prd_line AS Product_Line,
+	PD.prd_start_dt AS Product_Start_Date,
+	pdd.MAINTENANCE
+FROM Silver.crm_prd_info PD LEFT JOIN 
+Silver.Erp_PX_CAT_G1V2 Pdd on PD.cat_id=pdd.ID
+WHERE prd_end_dt IS NULL
+
+
+----------------------------------------------------------
+
+CREATE VIEW Gold.fact_sales_details as
+select 
+SD.sls_ord_num AS Sales_Order_Number,
+pd.product_key,
+cd.customer_key,
+SD.psls_order_dt AS Sales_Order_Date,
+SD.sls_ship_dt AS Sales_Ship_Date,
+SD.sls_due_dt AS Sales_Due_Date,
+SD.sls_sales AS Sales_Amount,
+SD.sls_quantity AS Sales_Quantity,
+SD.sls_price AS Sales_Price
+from Silver.Crm_SalesDetails SD left join 
+Gold.dim_product_details pd on 
+SD.sls_prd_key = pd.product_number
+left join Gold.dim_customer_details cd on 
+SD.sls_cust_id = cd.Customer_ID
